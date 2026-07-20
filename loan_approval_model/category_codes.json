@@ -1,0 +1,7 @@
+{
+    "gender": ["Female", "Male"],
+    "education": ["High School", "Associate", "Bachelor", "Master", "Doctorate"],
+    "home_ownership": ["Other", "Rent", "Mortgage", "Own"],
+    "loan_intent": ["Debtconsolidation", "Medical", "Home Improvement", "Personal", "Education", "Venture"],
+    "prev_loan_defaults": ["Yes", "No"]
+}
