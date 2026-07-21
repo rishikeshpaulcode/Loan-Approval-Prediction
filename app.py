@@ -125,7 +125,8 @@ elif ss.step == 4:
     st.subheader("Enter you Income per year (in dollars):")
     ss.inputs["income"] = st.number_input(
         label="income",
-        value=0.0,
+        min_value=1.00,
+        value="min",
         format="%.2f",
         label_visibility="collapsed"
     )
