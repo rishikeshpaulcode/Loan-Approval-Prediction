@@ -1,4 +1,5 @@
 # this module contains streamlit code for app interface
+from loan_approval_model import model_interface as mi
 import streamlit as st
 
 # create custom styles
