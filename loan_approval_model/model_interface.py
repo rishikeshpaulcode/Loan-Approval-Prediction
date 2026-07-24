@@ -2,12 +2,19 @@
 import numpy as np
 import pickle
 import json
+import shap
 
 # global variables
 threshold = 0.4
 feature_list = ("age", "gender", "education", "income", "emp_exp", "home_ownership", "loan_amount", "loan_intent", "interest_rate", "loan_percent_income", "credit_history_length", "credit_score", "prev_loan_defaults")
-with open('loan_approval_model/category_codes.json', 'rb') as file:
+numerical_features = ("age", "income", "emp_exp", "loan_amount", "interest_rate", "loan_percent_income", "credit_hist_length", "credit_score")
+categorical_features = ("gender", "education", "home_ownership", "loan_intent", "prev_loan_defaults")
+
+with open("loan_approval_model/category_codes.json", "rb") as file:
     category_codes = json.load(file)
+
+with open("loan_approval_model/approved_feature_means.json", "rb") as file:
+    approved_feature_means = json.load(file)
 
 # load model
 with open('loan_approval_model/loan_approval_predictor.pkl', 'rb') as file:
@@ -18,7 +25,7 @@ def to_num(features):
     input_arr = np.empty(13, dtype=np.float64)
 
     for feature in features:
-        if feature in category_codes:
+        if feature in categorical_features:
             value = category_codes[feature].index(features[feature])
         else:
             value = features[feature]
@@ -45,5 +52,29 @@ def custom_predict(features):
 
 
 # function to get features contributing to loan rejection
-def get_contri_features():
-    pass
+def get_contri_features(features):
+    explainer = shap.TreeExplainer(model)
+    input_arr = to_num(features)
+
+    shap_values = explainer(input_arr)
+    shap_scores = shap_values.values[0, :, 1].reshape(13, 1)
+    feature_idx = np.arange(13).reshape(13, 1)
+    feature_contri_arr = np.concatenate([feature_idx, shap_scores], axis=1)
+
+    contri_features_raw = feature_contri_arr[feature_contri_arr[1] > 0]
+    contri_features_sorted = contri_features_raw[contri_features_raw[: 1].argsort()[::-1]]
+
+    contri_features = []
+    for i in range(13):
+        name = feature_list[contri_features_sorted[i, 0]]
+
+        if name in numerical_features:
+            if features[name] > approved_feature_means[name]:
+                reason = "High"
+            else:
+                reason = "Low"
+        else:
+            reason = features[name]
+        contri_features.append((name, reason))
+
+    return contri_features
