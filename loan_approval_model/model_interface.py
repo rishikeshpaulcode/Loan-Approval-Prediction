@@ -37,7 +37,6 @@ def to_num(features):
 
 # fuction to get predicted probabilites for each class
 def custom_pridict_proba(features):
-    # return dummy value
     input_arr = to_num(features)
     return model.predict_proba(input_arr)[0]
 
