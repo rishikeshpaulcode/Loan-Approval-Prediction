@@ -64,7 +64,7 @@ def get_contri_features(features):
     contri_features_sorted = contri_features_raw[contri_features_raw[: 1].argsort()[::-1]]
 
     contri_features = []
-    for i in range(13):
+    for i in range(len(contri_features_sorted)):
         name = feature_list[contri_features_sorted[i, 0]]
 
         if name in numerical_features:
