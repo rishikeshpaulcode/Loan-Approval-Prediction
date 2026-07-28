@@ -1,5 +1,6 @@
 # this module contains streamlit code for app interface
 from loan_approval_model import model_interface as mi
+import plotly.express as px
 import streamlit as st
 
 # create custom styles
@@ -74,11 +75,11 @@ def prev_step():
 st.title(":bank: Loan Approval Prediction App")
 
 # display progress bar (if required)
-if 0 < ss.step < 14:
-    st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
+if 0 < ss.step < 12:
     st.progress(
-        ss.step / 13,
-        text=f"Question {st.session_state.step} of 13"
+        ss.step / 11,
+        text=f"Question {st.session_state.step} of 11"
     )
     st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
 
@@ -206,18 +207,52 @@ elif ss.step == 11:
     )
 
 elif ss.step == 12:
-    st.subheader("Do you have any previous loan dafaults?")
-    ss.inputs["prev_loan_defaults"] = st.pills(
-        label="prev_loan_defaults",
-        options=["Yes", "No"],
-        selection_mode="single",
-        key="pill5",
-        label_visibility="collapsed"
-    )
+    # check number of features
+    if len(ss.inputs) == 11:
+        ss.inputs["loan_percent_income"] = ss.inputs["loan_amount"] / ss.inputs["income"]
 
-elif ss.step == 13:
-    ss.inputs["loan_percent_income"] = ss.inputs["loan_amount"] / ss.inputs["income"]
-    st.subheader("Model not yet linked...")
+        # get prediction results
+        result_proba = mi.custom_pridict_proba(ss.inputs)
+        result_verdict = mi.custom_predict(ss.inputs)
+    
+        # display predictions
+        st.subheader("Predicton Results:")
+        st.write("Note: This is a statistical model and can make mistakes.")
+        categories = ["Approval", "Rejection"]
+        category_colors = {
+            "Approval": "#2ca02c",
+            "Rejection": "#d62728"
+        }
+        fig = px.pie(
+            values=result_proba,
+            names=categories,
+            color=categories,
+            color_discrete_map=category_colors,
+            hole=0.7
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # display rejection reasons
+        if result_verdict == 1:
+            st.write("Your loan application may get rejected. Click below to get most probable reasons.")
+        
+            if st.button("Get Reasons", type="primary"):
+                st.write("Rejection reasons (sorted in decreasing level of influence):")
+                contri_features = mi.get_contri_features(ss.inputs)
+        
+                i = 1
+                for name, reason in contri_features:
+                    name_formatted = name.replace("_", " ").title()
+        
+                    if name in mi.numerical_features_features:
+                        st.write(f"{i}. {name_formatted} is too {reason}")
+                    else:
+                        st.write(f"{i}. {name_formatted} is \'{reason}\'")
+                    i += 1
+        else:
+            st.write("Your loan application will most likely be approved :wink:")
+    else:
+        st.write("Some of the fields have missing values.")
 
 
 # display buttons
@@ -225,13 +260,13 @@ st.markdown("<div style='margin-top: 80px;'></div>", unsafe_allow_html=True)
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    if 0 < ss.step < 13:
+    if 0 < ss.step < 12:
         st.button("Prev", type="primary", on_click=prev_step)
 with col2:
     if ss.step == 0:
         st.button("Start", type="primary", on_click=next_step)
 with col3:
-    if 0 < ss.step < 12:
+    if 0 < ss.step < 11:
         st.button("Next", type="primary", on_click=next_step)
-    elif ss.step == 12:
+    elif ss.step == 11:
         st.button("Predict", type="primary", on_click=next_step)

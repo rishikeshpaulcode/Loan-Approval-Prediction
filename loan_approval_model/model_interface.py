@@ -5,10 +5,10 @@ import json
 import shap
 
 # global variables
-threshold = 0.4
-feature_list = ("age", "gender", "education", "income", "emp_exp", "home_ownership", "loan_amount", "loan_intent", "interest_rate", "loan_percent_income", "credit_history_length", "credit_score", "prev_loan_defaults")
+threshold = 0.25
+feature_list = ("age", "gender", "education", "income", "emp_exp", "home_ownership", "loan_amount", "loan_intent", "interest_rate", "loan_percent_income", "credit_history_length", "credit_score")
 numerical_features = ("age", "income", "emp_exp", "loan_amount", "interest_rate", "loan_percent_income", "credit_hist_length", "credit_score")
-categorical_features = ("gender", "education", "home_ownership", "loan_intent", "prev_loan_defaults")
+categorical_features = ("gender", "education", "home_ownership", "loan_intent")
 
 with open("loan_approval_model/category_codes.json", "rb") as file:
     category_codes = json.load(file)
@@ -22,7 +22,7 @@ with open('loan_approval_model/loan_approval_predictor.pkl', 'rb') as file:
 
 # function to encode features to modle understandable format
 def to_num(features):
-    input_arr = np.empty(13, dtype=np.float64)
+    input_arr = np.empty(12, dtype=np.float64)
 
     for feature in features:
         if feature in categorical_features:
@@ -60,12 +60,12 @@ def get_contri_features(features):
     feature_idx = np.arange(13).reshape(13, 1)
     feature_contri_arr = np.concatenate([feature_idx, shap_scores], axis=1)
 
-    contri_features_raw = feature_contri_arr[feature_contri_arr[1] > 0]
+    contri_features_raw = feature_contri_arr[feature_contri_arr[:, 1] > 0]
     contri_features_sorted = contri_features_raw[contri_features_raw[: 1].argsort()[::-1]]
 
     contri_features = []
     for i in range(len(contri_features_sorted)):
-        name = feature_list[contri_features_sorted[i, 0]]
+        name = feature_list[contri_features_sorted[i, 0].astype(np.int64)]
 
         if name in numerical_features:
             if features[name] > approved_feature_means[name]:
