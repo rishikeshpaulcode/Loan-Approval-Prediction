@@ -234,21 +234,20 @@ elif ss.step == 12:
         
         # display rejection reasons
         if result_verdict == 1:
-            st.write("Your loan application may get rejected. Click below to get most probable reasons.")
-        
-            if st.button("Get Reasons", type="primary"):
-                st.write("Rejection reasons (sorted in decreasing level of influence):")
-                contri_features = mi.get_contri_features(ss.inputs)
-        
-                i = 1
-                for name, reason in contri_features:
-                    name_formatted = name.replace("_", " ").title()
-        
-                    if name in mi.numerical_features_features:
-                        st.write(f"{i}. {name_formatted} is too {reason}")
-                    else:
-                        st.write(f"{i}. {name_formatted} is \'{reason}\'")
-                    i += 1
+            st.write("Your loan application may get rejected.")
+            st.write("Rejection reasons (sorted in decreasing level of influence):")
+
+            contri_features = mi.get_contri_features(ss.inputs)
+            i = 1
+
+            for name, reason in contri_features:
+                name_formatted = name.replace("_", " ").title()
+                
+                if name in mi.numerical_features:
+                    st.write(f"{i}. {name_formatted} is too {reason}")
+                else:
+                    st.write(f"{i}. {name_formatted} is \'{reason}\'")
+                i += 1
         else:
             st.write("Your loan application will most likely be approved :wink:")
     else:
