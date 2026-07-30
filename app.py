@@ -216,7 +216,7 @@ elif ss.step == 12:
         result_verdict = mi.custom_predict(ss.inputs)
     
         # display predictions
-        st.subheader("Predicton Results:")
+        st.subheader("Predicton Report:")
         st.write("Note: This is a statistical model and can make mistakes.")
         categories = ["Approval", "Rejection"]
         category_colors = {
