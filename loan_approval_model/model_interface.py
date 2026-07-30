@@ -56,16 +56,16 @@ def get_contri_features(features):
     input_arr = to_num(features)
 
     shap_values = explainer(input_arr)
-    shap_scores = shap_values.values[0, :, 1].reshape(13, 1)
-    feature_idx = np.arange(13).reshape(13, 1)
+    shap_scores = shap_values.values[0, :, 1].reshape(12, 1)
+    feature_idx = np.arange(12).reshape(12, 1)
     feature_contri_arr = np.concatenate([feature_idx, shap_scores], axis=1)
 
     contri_features_raw = feature_contri_arr[feature_contri_arr[:, 1] > 0]
-    contri_features_sorted = contri_features_raw[contri_features_raw[: 1].argsort()[::-1]]
+    contri_features_sorted = contri_features_raw[contri_features_raw[:, 1].argsort()[::-1]]
 
     contri_features = []
     for i in range(len(contri_features_sorted)):
-        name = feature_list[contri_features_sorted[i, 0].astype(np.int64)]
+        name = feature_list[int(contri_features_sorted[i, 0])]
 
         if name in numerical_features:
             if features[name] > approved_feature_means[name]:
