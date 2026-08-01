@@ -206,9 +206,9 @@ elif ss.step == 11:
         label_visibility="collapsed"
     )
 
-elif ss.step == 12:
+elif ss.step >= 12:
     # check number of features
-    if len(ss.inputs) == 11:
+    if len(ss.inputs) >= 11:
         ss.inputs["loan_percent_income"] = ss.inputs["loan_amount"] / ss.inputs["income"]
 
         # get prediction results
@@ -250,6 +250,20 @@ elif ss.step == 12:
                 i += 1
         else:
             st.write("Your loan application will most likely be approved :wink:")
+
+        # loan amount update feature
+        st.write("")
+        st.divider()
+        st.write("Set new loan amount:")
+
+        ss.inputs["loan_amount"] = st.number_input(
+            label="loan_amount",
+            value=0.0,
+            format="%.2f",
+            label_visibility="collapsed"
+        )
+
+        st.button("Update", type="primary", on_click=next_step)
     else:
         st.write("Some of the fields have missing values.")
 
